@@ -17,18 +17,12 @@ const PageLayout = ({ children, title, showBackButton = false, onBackClick }) =>
           <EasyParkingLogo width={160} height={55} />
         </div>
 
-        {/* Título de la página - Versión mejorada */}
+        {/* Título de la página */}
         {title && (
           <div className="flex-1 flex items-center justify-center">
-            <div className="relative">
-              {/* Glow effect sutil */}
-              <div className="absolute inset-0 bg-primary-500 blur-xl opacity-30 rounded-lg"></div>
-              
-              {/* Título con mejor contraste y diseño */}
-              <h1 className="relative text-white font-bold text-xl px-6 py-2.5 rounded-lg bg-gradient-to-r from-primary-600 to-primary-500 shadow-lg border border-primary-400/20">
-                {title}
-              </h1>
-            </div>
+            <h1 className="text-text-dark font-semibold text-xl">
+              {title}
+            </h1>
           </div>
         )}
 
