@@ -92,6 +92,10 @@ const SeleccionarParqueadero = () => {
   };
 
   const handleParqueaderoSelect = (parqueadero) => {
+    if (!parqueadero || parqueadero.espacios_disponibles <= 0) {
+      setError('Este parqueadero no tiene espacios disponibles. No se pueden crear reservas.');
+      return;
+    }
     navigate(`/reserva/nuevo/${parqueadero.id}`);
   };
 
@@ -241,12 +245,18 @@ const SeleccionarParqueadero = () => {
             <div className="space-y-3">
               {filteredParqueaderos.map((parqueadero) => {
                 const tarifa = getTarifaById(parqueadero.tarifa_id);
+                const hasAvailableSpaces = parqueadero.espacios_disponibles > 0;
 
                 return (
                   <button
                     key={parqueadero.id}
                     onClick={() => handleParqueaderoSelect(parqueadero)}
-                    className="w-full bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md hover:border-info-blue transition-all text-left"
+                    disabled={!hasAvailableSpaces}
+                    className={`w-full rounded-lg p-4 shadow-sm border transition-all text-left ${
+                      hasAvailableSpaces
+                        ? 'bg-white border-gray-200 hover:shadow-md hover:border-info-blue cursor-pointer'
+                        : 'bg-gray-100 border-gray-300 cursor-not-allowed opacity-75'
+                    }`}
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
@@ -254,7 +264,7 @@ const SeleccionarParqueadero = () => {
                           <h3 className="text-lg font-semibold text-text-dark">{parqueadero.nombre}</h3>
                           <Badge
                             variant={parqueadero.espacios_disponibles > 0 ? 'success' : 'error'}
-                            text={`${parqueadero.espacios_disponibles} disponibles`}
+                            text={parqueadero.espacios_disponibles > 0 ? `${parqueadero.espacios_disponibles} disponibles` : 'Sin espacios'}
                           />
                           {parqueadero.solo_motos && (
                             <Badge variant="info" text="Solo motos" />
@@ -312,7 +322,13 @@ const SeleccionarParqueadero = () => {
                         )}
                       </div>
 
-                      <ChevronRight className="w-5 h-5 text-gray-400 ml-4" />
+                      {hasAvailableSpaces ? (
+                        <ChevronRight className="w-5 h-5 text-gray-400 ml-4" />
+                      ) : (
+                        <div className="ml-4 text-sm text-red-500 font-medium">
+                          No disponible
+                        </div>
+                      )}
                     </div>
                   </button>
                 );

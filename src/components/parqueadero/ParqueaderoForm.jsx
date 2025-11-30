@@ -16,9 +16,11 @@ import Alert from '../common/Alert';
 import Spinner from '../common/Spinner';
 import { mockParqueaderosService } from '../../api/mockParqueaderoService';
 import { mockTarifasService } from '../../api/mockTarifasService';
+import { useAuth } from '../../hooks/useAuth';
 
 const ParqueaderoForm = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -158,7 +160,17 @@ const ParqueaderoForm = () => {
         throw new Error('Debe seleccionar una tarifa');
       }
 
-      const result = await mockParqueaderosService.createParqueadero(formData);
+      if (!user || !user.id) {
+        throw new Error('Usuario no autenticado');
+      }
+
+      // Agregar creador_id antes de enviar
+      const dataToSend = {
+        ...formData,
+        creador_id: parseInt(user.id)
+      };
+
+      const result = await mockParqueaderosService.createParqueadero(dataToSend);
 
       if (result.success) {
         setSuccess(true);

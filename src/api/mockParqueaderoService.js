@@ -19,7 +19,9 @@ const datosInicialesPorDefecto = [
     tipo: 'Cubierto',
     caracteristicas: ['Seguridad 24/7', 'Acceso para Discapacitados'],
     imagen_url: '/images/parqueadero1.jpg',
-    activo: true
+    activo: true,
+    creador_id: 1,
+    fecha_creacion: '2024-01-01T00:00:00.000Z'
   },
   {
     id: 2,
@@ -34,7 +36,9 @@ const datosInicialesPorDefecto = [
     tipo: 'Descubierto',
     caracteristicas: ['Seguridad 24/7'],
     imagen_url: '/images/parqueadero2.jpg',
-    activo: true
+    activo: true,
+    creador_id: 2,
+    fecha_creacion: '2024-01-01T00:00:00.000Z'
   },
   {
     id: 3,
@@ -49,7 +53,9 @@ const datosInicialesPorDefecto = [
     tipo: 'Garaje',
     caracteristicas: ['Seguridad 24/7', 'Carga Eléctrica', 'Acceso para Discapacitados'],
     imagen_url: '/images/parqueadero3.jpg',
-    activo: true
+    activo: true,
+    creador_id: 1,
+    fecha_creacion: '2024-01-01T00:00:00.000Z'
   },
   {
     id: 4,
@@ -64,7 +70,9 @@ const datosInicialesPorDefecto = [
     tipo: 'Cubierto',
     caracteristicas: ['Acceso para Discapacitados'],
     imagen_url: '/images/parqueadero4.jpg',
-    activo: true
+    activo: true,
+    creador_id: 3,
+    fecha_creacion: '2024-01-01T00:00:00.000Z'
   },
   {
     id: 5,
@@ -79,7 +87,9 @@ const datosInicialesPorDefecto = [
     tipo: 'Cubierto',
     caracteristicas: ['Seguridad 24/7', 'Carga Eléctrica'],
     imagen_url: '/images/parqueadero5.jpg',
-    activo: true
+    activo: true,
+    creador_id: 1,
+    fecha_creacion: '2024-01-01T00:00:00.000Z'
   },
   {
     id: 6,
@@ -95,7 +105,9 @@ const datosInicialesPorDefecto = [
     caracteristicas: [],
     solo_motos: true,
     imagen_url: '/images/parqueadero6.jpg',
-    activo: true
+    activo: true,
+    creador_id: 2,
+    fecha_creacion: '2024-01-01T00:00:00.000Z'
   }
 ];
 
@@ -239,10 +251,22 @@ export const mockParqueaderosService = {
     const nuevoId = maxId + 1;
 
     // Validar datos requeridos
-    const { nombre, direccion, coordenadas, horario_apertura, horario_cierre, total_spaces, tarifa_id, tipo } = parqueaderoData;
+    const { nombre, direccion, coordenadas, horario_apertura, horario_cierre, total_spaces, tarifa_id, tipo, creador_id } = parqueaderoData;
 
-    if (!nombre || !direccion || !coordenadas || !horario_apertura || !horario_cierre || !total_spaces || !tarifa_id || !tipo) {
-      throw new Error('Faltan datos requeridos para crear el parqueadero');
+
+    const camposFaltantes = [];
+    if (!nombre) camposFaltantes.push('nombre');
+    if (!direccion) camposFaltantes.push('direccion');
+    if (!coordenadas || !coordenadas.lat || !coordenadas.lng) camposFaltantes.push('coordenadas');
+    if (!horario_apertura) camposFaltantes.push('horario_apertura');
+    if (!horario_cierre) camposFaltantes.push('horario_cierre');
+    if (!total_spaces) camposFaltantes.push('total_spaces');
+    if (!tarifa_id) camposFaltantes.push('tarifa_id');
+    if (!tipo) camposFaltantes.push('tipo');
+    if (!creador_id) camposFaltantes.push('creador_id');
+
+    if (camposFaltantes.length > 0) {
+      throw new Error(`Faltan los siguientes campos requeridos: ${camposFaltantes.join(', ')}`);
     }
 
     // Crear nuevo parqueadero
@@ -264,6 +288,7 @@ export const mockParqueaderosService = {
       imagen_url: parqueaderoData.imagen_url || '/images/parqueadero-default.jpg',
       solo_motos: parqueaderoData.solo_motos || false,
       activo: true,
+      creador_id: parseInt(creador_id),
       fecha_creacion: new Date().toISOString()
     };
 
@@ -280,7 +305,7 @@ export const mockParqueaderosService = {
     };
   },
 
-  async updateParqueadero(id, updateData) {
+  async updateParqueadero(id, updateData, creadorId = null) {
     await delay(300);
 
     // Recargar datos desde localStorage
@@ -291,11 +316,17 @@ export const mockParqueaderosService = {
       throw new Error('Parqueadero no encontrado');
     }
 
-    // Actualizar parqueadero
+    // Verificar permisos si se proporciona creadorId
+    if (creadorId && parqueaderos[index].creador_id !== parseInt(creadorId)) {
+      throw new Error('No tienes permisos para modificar este parqueadero');
+    }
+
+    // Actualizar parqueadero (mantener creador_id original)
     parqueaderos[index] = {
       ...parqueaderos[index],
       ...updateData,
       id: parseInt(id), // Mantener el ID original
+      creador_id: parqueaderos[index].creador_id, // Mantener el creador original
       fecha_modificacion: new Date().toISOString()
     };
 
@@ -309,7 +340,7 @@ export const mockParqueaderosService = {
     };
   },
 
-  async deleteParqueadero(id) {
+  async deleteParqueadero(id, creadorId = null) {
     await delay(200);
 
     // Recargar datos desde localStorage
@@ -318,6 +349,11 @@ export const mockParqueaderosService = {
     const index = parqueaderos.findIndex(p => p.id === parseInt(id));
     if (index === -1) {
       throw new Error('Parqueadero no encontrado');
+    }
+
+    // Verificar permisos si se proporciona creadorId
+    if (creadorId && parqueaderos[index].creador_id !== parseInt(creadorId)) {
+      throw new Error('No tienes permisos para eliminar este parqueadero');
     }
 
     // Marcar como inactivo en lugar de eliminar
@@ -330,6 +366,125 @@ export const mockParqueaderosService = {
     return {
       success: true,
       message: 'Parqueadero eliminado exitosamente'
+    };
+  },
+
+  // Método específico para obtener parqueaderos de un administrador
+  async getParqueaderosByCreador(creadorId, filters = {}) {
+    await delay(300);
+
+    // Recargar datos desde localStorage
+    parqueaderos = cargarParqueaderos();
+
+    let resultado = parqueaderos.filter(p => p.activo && p.creador_id === parseInt(creadorId));
+
+    // Aplicar filtros adicionales si se proporcionan
+    if (filters.searchText) {
+      const search = filters.searchText.toLowerCase();
+      resultado = resultado.filter(p =>
+        p.nombre.toLowerCase().includes(search) ||
+        p.direccion.toLowerCase().includes(search)
+      );
+    }
+
+    if (filters.tipo) {
+      resultado = resultado.filter(p => p.tipo === filters.tipo);
+    }
+
+    return {
+      success: true,
+      data: resultado,
+      total: resultado.length
+    };
+  },
+
+  // Función para reducir espacios disponibles cuando se crea una reserva
+  async reducirEspaciosDisponibles(parqueaderoId) {
+    // Recargar datos desde localStorage
+    parqueaderos = cargarParqueaderos();
+
+    const index = parqueaderos.findIndex(p => p.id === parseInt(parqueaderoId));
+    if (index === -1) {
+      throw new Error('Parqueadero no encontrado');
+    }
+
+    if (parqueaderos[index].espacios_disponibles <= 0) {
+      throw new Error('No hay espacios disponibles');
+    }
+
+    // Reducir espacios disponibles
+    parqueaderos[index].espacios_disponibles -= 1;
+
+    // Guardar en localStorage
+    guardarParqueaderos(parqueaderos);
+
+    return parqueaderos[index];
+  },
+
+  // Función para aumentar espacios disponibles cuando se cancela una reserva
+  async aumentarEspaciosDisponibles(parqueaderoId) {
+    // Recargar datos desde localStorage
+    parqueaderos = cargarParqueaderos();
+
+    const index = parqueaderos.findIndex(p => p.id === parseInt(parqueaderoId));
+    if (index === -1) {
+      throw new Error('Parqueadero no encontrado');
+    }
+
+    // No debe exceder el total de espacios
+    if (parqueaderos[index].espacios_disponibles < parqueaderos[index].total_spaces) {
+      parqueaderos[index].espacios_disponibles += 1;
+    }
+
+    // Guardar en localStorage
+    guardarParqueaderos(parqueaderos);
+
+    return parqueaderos[index];
+  },
+
+  // Función para que administradores ajusten espacios manualmente
+  async ajustarEspaciosDisponibles(parqueaderoId, operacion, creadorId = null) {
+    await delay(200);
+
+    // Recargar datos desde localStorage
+    parqueaderos = cargarParqueaderos();
+
+    const index = parqueaderos.findIndex(p => p.id === parseInt(parqueaderoId));
+    if (index === -1) {
+      throw new Error('Parqueadero no encontrado');
+    }
+
+    // Verificar permisos si se proporciona creadorId
+    if (creadorId && parqueaderos[index].creador_id !== parseInt(creadorId)) {
+      throw new Error('No tienes permisos para modificar este parqueadero');
+    }
+
+    const parqueadero = parqueaderos[index];
+
+    if (operacion === 'reducir') {
+      if (parqueadero.espacios_disponibles <= 0) {
+        throw new Error('No hay espacios disponibles para reducir');
+      }
+      parqueadero.espacios_disponibles -= 1;
+    } else if (operacion === 'aumentar') {
+      if (parqueadero.espacios_disponibles >= parqueadero.total_spaces) {
+        throw new Error('No se puede exceder el total de espacios');
+      }
+      parqueadero.espacios_disponibles += 1;
+    } else {
+      throw new Error('Operación no válida. Use "reducir" o "aumentar"');
+    }
+
+    // Agregar log de modificación
+    parqueadero.fecha_modificacion = new Date().toISOString();
+
+    // Guardar en localStorage
+    guardarParqueaderos(parqueaderos);
+
+    return {
+      success: true,
+      data: parqueadero,
+      message: `Espacios ${operacion === 'reducir' ? 'reducidos' : 'aumentados'} exitosamente`
     };
   },
 

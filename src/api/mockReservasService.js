@@ -1,6 +1,8 @@
 // RUTA: src/api/mockReservasService.js
 // Servicio mock para manejo de reservas con persistencia en localStorage
 
+import { mockParqueaderosService } from './mockParqueaderoService';
+
 // Clave para almacenamiento en localStorage
 const RESERVAS_STORAGE_KEY = 'easyParking_reservas';
 const NEXT_ID_STORAGE_KEY = 'easyParking_reservas_nextId';
@@ -125,6 +127,14 @@ export const mockReservasService = {
     guardarReservas(reservas);
     guardarNextId(nextId);
 
+    // Reducir espacios disponibles en el parqueadero
+    try {
+      await mockParqueaderosService.reducirEspaciosDisponibles(data.parqueadero_id);
+      console.log('✅ Espacios disponibles reducidos en el parqueadero');
+    } catch (err) {
+      console.warn('⚠️ Error al reducir espacios disponibles:', err.message);
+    }
+
     console.log('✅ Nueva reserva creada y guardada:', nuevaReserva);
     return nuevaReserva;
   },
@@ -186,10 +196,24 @@ export const mockReservasService = {
       throw new Error('No se puede cancelar una reserva completada');
     }
 
+    // Guardar el estado anterior antes de cambiarlo
+    const estadoAnterior = reserva.estado;
+
     reserva.estado = 'cancelada';
 
     // Guardar cambios en localStorage
     guardarReservas(reservas);
+
+    // Devolver el espacio disponible al parqueadero
+    // Solo si la reserva estaba pendiente o confirmada (había ocupado un espacio)
+    if (estadoAnterior === 'pendiente' || estadoAnterior === 'confirmada') {
+      try {
+        await mockParqueaderosService.aumentarEspaciosDisponibles(reserva.parqueadero_id);
+        console.log('✅ Espacio devuelto al parqueadero tras cancelación');
+      } catch (err) {
+        console.warn('⚠️ Error al devolver espacio al parqueadero:', err.message);
+      }
+    }
 
     return reserva;
   },
@@ -216,6 +240,14 @@ export const mockReservasService = {
 
     // Guardar cambios en localStorage
     guardarReservas(reservas);
+
+    // Devolver el espacio disponible al parqueadero
+    try {
+      await mockParqueaderosService.aumentarEspaciosDisponibles(reserva.parqueadero_id);
+      console.log('✅ Espacio devuelto al parqueadero tras completar reserva');
+    } catch (err) {
+      console.warn('⚠️ Error al devolver espacio al parqueadero:', err.message);
+    }
 
     return reserva;
   },

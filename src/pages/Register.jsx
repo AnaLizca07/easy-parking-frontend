@@ -1,5 +1,5 @@
 // src/pages/Register.jsx
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import RegisterForm from '../components/auth/RegisterForm';
@@ -8,6 +8,9 @@ import EasyParkingLogo from '../components/common/EasyParkingLogo';
 const Register = () => {
   const navigate = useNavigate();
   const { register, isAuthenticated, loading: authLoading } = useAuth();
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const infoButtonRef = useRef(null);
+  const popoverRef = useRef(null);
 
   useEffect(() => {
     // Si ya está autenticado, redirigir al home
@@ -15,6 +18,30 @@ const Register = () => {
       navigate('/', { replace: true });
     }
   }, [isAuthenticated, navigate]);
+
+  // Manejador para cerrar el popover al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Si el modal está visible Y el clic no fue dentro del botón de información Y no fue dentro del popover
+      if (
+        showInfoModal &&
+        infoButtonRef.current &&
+        !infoButtonRef.current.contains(event.target) &&
+        popoverRef.current &&
+        !popoverRef.current.contains(event.target)
+      ) {
+        setShowInfoModal(false);
+      }
+    };
+
+    // Agregar el listener de evento al montar
+    document.addEventListener('mousedown', handleClickOutside);
+
+    // Limpiar el listener al desmontar
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showInfoModal]);
 
   const handleRegister = async (userData) => {
     const result = await register(userData);
@@ -48,8 +75,26 @@ const Register = () => {
       <div className="max-w-md w-full">
         {/* Card de Register */}
         <div className="bg-white rounded-2xl shadow-2xl p-8">
-          {/* Logo integrado */}
-          <div className="text-center">
+          {/* Logo integrado (Contenedor relativo para posicionar el popover) */}
+          <div className="text-center relative">
+            {/* Ícono de información */}
+            <button
+              ref={infoButtonRef}
+              onClick={() => setShowInfoModal(!showInfoModal)}
+              className="absolute top-0 right-0 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 z-20"
+              title="Información sobre Easy Parking"
+            >
+              <svg
+                className="w-5 h-5"
+                style={{color: 'var(--color-primary-600)'}}
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+            </button>
+
             <EasyParkingLogo width={160} height={55} className="mx-auto" />
             <h2 className="text-2xl font-bold mt-1" style={{color: 'var(--color-text-primary)'}}>
               Crear Cuenta
@@ -69,6 +114,87 @@ const Register = () => {
           </p>
         </div>
       </div>
+
+      {/* Popover informativo (NO Modal) */}
+      {showInfoModal && (
+        <div
+          ref={popoverRef}
+          className="absolute bg-white rounded-lg shadow-xl p-4 w-64 z-30
+                     transform transition-opacity duration-200 ease-out
+                     opacity-100"
+          style={{
+            top: '30px',      // Posiciona más cerca de la parte superior
+            left: '50%',      // Inicia en el centro horizontal del padre relativo
+            transform: 'translateX(-50%)', // Mueve a la izquierda la mitad de su propio ancho (centrado)
+          }}
+        >
+            {/* Contenido del popover */}
+            <div className="relative">
+                {/* Botón de cerrar */}
+                <button
+                    onClick={() => setShowInfoModal(false)}
+                    className="absolute top-[-8px] right-[-8px] text-gray-400 hover:text-gray-600 transition-colors bg-white rounded-full p-1"
+                >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                <div className="flex items-center mb-3">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center mr-2 flex-shrink-0" style={{backgroundColor: 'var(--color-primary-100)'}}>
+                      <svg className="w-4 h-4" style={{color: 'var(--color-primary-600)'}} fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-base font-bold" style={{color: 'var(--color-text-primary)'}}>
+                      ¿Qué es Easy Parking?
+                    </h3>
+                </div>
+
+                <div className="space-y-3">
+                  <p className="text-xs leading-relaxed" style={{color: 'var(--color-text-secondary)'}}>
+                    <strong>Easy Parking</strong> es la solución más inteligente para encontrar y reservar espacios de parqueadero en tu ciudad.
+                  </p>
+
+                  <div className="space-y-2">
+                    {/* Lista de beneficios simplificada */}
+                    <div className="flex items-start space-x-1">
+                      <svg className="w-3 h-3 mt-0.5 flex-shrink-0" style={{color: 'var(--color-primary-600)'}} fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-xs" style={{color: 'var(--color-text-secondary)'}}>
+                        Busca y reserva en tiempo real.
+                      </span>
+                    </div>
+
+                    <div className="flex items-start space-x-1">
+                      <svg className="w-3 h-3 mt-0.5 flex-shrink-0" style={{color: 'var(--color-primary-600)'}} fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-xs" style={{color: 'var(--color-text-secondary)'}}>
+                        Compara precios y ubicaciones.
+                      </span>
+                    </div>
+
+                    <div className="flex items-start space-x-1">
+                      <svg className="w-3 h-3 mt-0.5 flex-shrink-0" style={{color: 'var(--color-primary-600)'}} fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-xs" style={{color: 'var(--color-text-secondary)'}}>
+                        Ahorra tiempo y gestiona reservas.
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-gray-100">
+                    <p className="text-[10px] text-center" style={{color: 'var(--color-text-secondary)'}}>
+                      ¡Regístrate y aparca de manera inteligente!
+                    </p>
+                  </div>
+                </div>
+            </div>
+        </div>
+      )}
     </div>
   );
 };

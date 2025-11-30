@@ -10,7 +10,9 @@ import {
   Search,
   Filter,
   Eye,
-  DollarSign
+  DollarSign,
+  Minus,
+  UserPlus
 } from 'lucide-react';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
@@ -20,32 +22,45 @@ import Badge from '../../components/common/Badge';
 import PageLayout from '../../components/layout/PageLayout';
 import { mockParqueaderosService } from '../../api/mockParqueaderoService';
 import { mockTarifasService } from '../../api/mockTarifasService';
+import { useAuth } from '../../hooks/useAuth';
 
 const GestionParqueaderos = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [parqueaderos, setParqueaderos] = useState([]);
   const [tarifas, setTarifas] = useState([]);
-  const [filteredParqueaderos, setFilteredParqueaderos] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [selectedTipo, setSelectedTipo] = useState('');
   const [error, setError] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [adjustingSpaces, setAdjustingSpaces] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     fetchData();
   }, []);
 
   useEffect(() => {
-    filterParqueaderos();
-  }, [parqueaderos, searchText, selectedTipo]);
+    fetchData();
+  }, [searchText, selectedTipo, user]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
+
+      if (!user || !user.id) {
+        throw new Error('Usuario no autenticado');
+      }
+
+      const filters = {
+        searchText,
+        tipo: selectedTipo
+      };
+
       const [parqueaderosResult, tarifasResult] = await Promise.all([
-        mockParqueaderosService.getParqueaderos(),
+        mockParqueaderosService.getParqueaderosByCreador(user.id, filters),
         mockTarifasService.listarTarifas()
       ]);
 
@@ -58,23 +73,7 @@ const GestionParqueaderos = () => {
     }
   };
 
-  const filterParqueaderos = () => {
-    let filtered = [...parqueaderos];
-
-    if (searchText) {
-      const search = searchText.toLowerCase();
-      filtered = filtered.filter(p =>
-        p.nombre.toLowerCase().includes(search) ||
-        p.direccion.toLowerCase().includes(search)
-      );
-    }
-
-    if (selectedTipo) {
-      filtered = filtered.filter(p => p.tipo === selectedTipo);
-    }
-
-    setFilteredParqueaderos(filtered);
-  };
+  // El filtrado ahora se hace en el servidor a través de getParqueaderosByCreador
 
   const getTarifaById = (tarifaId) => {
     return tarifas.find(t => t.id === tarifaId);
@@ -82,11 +81,39 @@ const GestionParqueaderos = () => {
 
   const handleDeleteConfirm = async (id) => {
     try {
-      await mockParqueaderosService.deleteParqueadero(id);
+      await mockParqueaderosService.deleteParqueadero(id, user.id);
       setParqueaderos(prev => prev.filter(p => p.id !== id));
       setDeleteConfirm(null);
     } catch (err) {
       setError('Error al eliminar el parqueadero: ' + err.message);
+    }
+  };
+
+  const handleAdjustSpaces = async (parqueaderoId, operacion) => {
+    try {
+      setAdjustingSpaces(parqueaderoId);
+      setError('');
+
+      const result = await mockParqueaderosService.ajustarEspaciosDisponibles(
+        parqueaderoId,
+        operacion,
+        user.id
+      );
+
+      // Actualizar el parqueadero en la lista local
+      setParqueaderos(prev => prev.map(p =>
+        p.id === parqueaderoId
+          ? { ...p, espacios_disponibles: result.data.espacios_disponibles }
+          : p
+      ));
+
+      setSuccessMessage(result.message);
+      setTimeout(() => setSuccessMessage(''), 3000);
+
+    } catch (err) {
+      setError('Error al ajustar espacios: ' + err.message);
+    } finally {
+      setAdjustingSpaces(null);
     }
   };
 
@@ -109,6 +136,9 @@ const GestionParqueaderos = () => {
               <div>
                 <p className="text-sm text-text-secondary">
                   {parqueaderos.length} parqueadero{parqueaderos.length !== 1 ? 's' : ''} registrado{parqueaderos.length !== 1 ? 's' : ''}
+                </p>
+                <p className="text-xs text-text-muted mt-1">
+                  💡 Usa los botones <span className="text-red-600">➖</span> y <span className="text-green-600">➕</span> para ajustar espacios cuando clientes lleguen sin reserva o se vayan
                 </p>
               </div>
               <Link to="/admin/parqueaderos/nuevo">
@@ -150,8 +180,9 @@ const GestionParqueaderos = () => {
 
       <div className="p-4">
         {error && <Alert type="error" message={error} onClose={() => setError(null)} />}
+        {successMessage && <Alert type="success" message={successMessage} onClose={() => setSuccessMessage('')} />}
 
-        {filteredParqueaderos.length === 0 ? (
+        {parqueaderos.length === 0 ? (
           <div className="bg-white rounded-lg p-8 text-center">
             <Car className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-text-dark mb-2">
@@ -174,7 +205,7 @@ const GestionParqueaderos = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredParqueaderos.map((parqueadero) => {
+            {parqueaderos.map((parqueadero) => {
               const tarifa = getTarifaById(parqueadero.tarifa_id);
 
               return (
@@ -213,28 +244,58 @@ const GestionParqueaderos = () => {
                       </div>
                     </div>
 
-                    <div className="flex gap-2 ml-4">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate(`/parqueadero/${parqueadero.id}`)}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate(`/admin/parqueaderos/${parqueadero.id}/editar`)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => setDeleteConfirm(parqueadero.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                    <div className="flex flex-col gap-2 ml-4">
+                      {/* Controles de espacios */}
+                      <div className="flex gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAdjustSpaces(parqueadero.id, 'reducir')}
+                          disabled={parqueadero.espacios_disponibles === 0 || adjustingSpaces === parqueadero.id}
+                          title="Reducir espacio (cliente sin reserva)"
+                          className="text-red-600 hover:bg-red-50"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAdjustSpaces(parqueadero.id, 'aumentar')}
+                          disabled={parqueadero.espacios_disponibles === parqueadero.total_spaces || adjustingSpaces === parqueadero.id}
+                          title="Aumentar espacio (cliente se fue)"
+                          className="text-green-600 hover:bg-green-50"
+                        >
+                          <UserPlus className="w-4 h-4" />
+                        </Button>
+                      </div>
+
+                      {/* Controles de gestión */}
+                      <div className="flex gap-1">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/parqueadero/${parqueadero.id}`)}
+                          title="Ver detalles"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/admin/parqueaderos/${parqueadero.id}/editar`)}
+                          title="Editar"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="danger"
+                          size="sm"
+                          onClick={() => setDeleteConfirm(parqueadero.id)}
+                          title="Eliminar"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
 

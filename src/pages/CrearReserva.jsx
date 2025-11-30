@@ -105,6 +105,11 @@ const CrearReserva = () => {
         throw new Error('La fecha de reserva es requerida');
       }
 
+      // Verificar espacios disponibles
+      if (!parqueadero || parqueadero.espacios_disponibles <= 0) {
+        throw new Error('No hay espacios disponibles en este parqueadero');
+      }
+
       // Crear la reserva
       const reservaData = {
         usuario_id: user.id,
@@ -227,19 +232,41 @@ const CrearReserva = () => {
             <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-text-muted mt-0.5" />
-                <div>
+                <div className="flex-1">
                   <p className="font-medium text-text-primary">{parqueadero.nombre}</p>
                   <p className="text-sm text-text-secondary">{parqueadero.direccion}</p>
                   <p className="text-sm text-primary-600 mt-1">
                     ${parqueadero.precio_hora.toLocaleString()} / hora
                   </p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-sm text-text-secondary">Espacios disponibles:</span>
+                    <span className={`text-sm font-medium ${
+                      parqueadero.espacios_disponibles === 0
+                        ? 'text-red-600'
+                        : parqueadero.espacios_disponibles <= 5
+                          ? 'text-yellow-600'
+                          : 'text-green-600'
+                    }`}>
+                      {parqueadero.espacios_disponibles}
+                    </span>
+                  </div>
                 </div>
               </div>
+
+              {/* Alerta de no disponibilidad */}
+              {parqueadero.espacios_disponibles === 0 && (
+                <Alert variant="error" className="mt-4">
+                  <AlertCircle className="w-5 h-5" />
+                  Este parqueadero no tiene espacios disponibles. No se pueden crear nuevas reservas.
+                </Alert>
+              )}
             </div>
           )}
 
           {/* Formulario */}
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
+            {/* Deshabilitar formulario si no hay espacios */}
+            <fieldset disabled={!parqueadero || parqueadero.espacios_disponibles === 0}>
             {error && (
               <Alert variant="error">
                 <AlertCircle className="w-5 h-5" />
@@ -344,7 +371,7 @@ const CrearReserva = () => {
             {/* Botón de envío */}
             <Button
               type="submit"
-              disabled={submitting}
+              disabled={submitting || !parqueadero || parqueadero.espacios_disponibles === 0}
               className="w-full"
               size="lg"
             >
@@ -353,10 +380,13 @@ const CrearReserva = () => {
                   <Spinner size="sm" className="mr-2" />
                   Creando reserva...
                 </>
+              ) : parqueadero && parqueadero.espacios_disponibles === 0 ? (
+                'No hay espacios disponibles'
               ) : (
                 'Confirmar reserva'
               )}
             </Button>
+            </fieldset>
           </form>
           </div>
         </div>
