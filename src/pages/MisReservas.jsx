@@ -3,9 +3,9 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Calendar, Clock, MapPin, Car, CheckCircle, 
-  XCircle, AlertCircle, ChevronRight, QrCode 
+import {
+  Calendar, Clock, MapPin, Car, CheckCircle,
+  XCircle, AlertCircle, ChevronRight, QrCode, X
 } from 'lucide-react';
 import Button from '../components/common/Button';
 import Spinner from '../components/common/Spinner';
@@ -21,6 +21,8 @@ const MisReservas = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filtroEstado, setFiltroEstado] = useState('todas');
+  const [selectedReserva, setSelectedReserva] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     cargarReservas();
@@ -59,9 +61,20 @@ const MisReservas = () => {
     try {
       await mockReservasService.cancelarReserva(reservaId);
       await cargarReservas();
+      setShowModal(false);
     } catch (err) {
       alert(err.message);
     }
+  };
+
+  const handleVerDetalles = (reserva) => {
+    setSelectedReserva(reserva);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedReserva(null);
   };
 
   const getEstadoBadge = (estado) => {
@@ -85,8 +98,8 @@ const MisReservas = () => {
         label: 'Cancelada'
       },
       completada: {
-        bg: 'bg-blue-100',
-        text: 'text-blue-800',
+        bg: 'bg-gray-100',
+        text: 'text-gray-800',
         icon: <CheckCircle className="w-4 h-4" />,
         label: 'Completada'
       }
@@ -95,7 +108,7 @@ const MisReservas = () => {
     const badge = badges[estado] || badges.pendiente;
 
     return (
-      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium ${badge.bg} ${badge.text}`}>
+      <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold shadow-sm ${badge.bg} ${badge.text}`}>
         {badge.icon}
         {badge.label}
       </span>
@@ -119,8 +132,8 @@ const MisReservas = () => {
 
   return (
     <PageLayout title="Mis Reservas">
-      <div className="bg-gray-50 py-8 px-4 min-h-full">
-        <div className="max-w-4xl mx-auto">
+      <div className="bg-gray-50 py-6 px-4 min-h-full">
+        <div className="max-w-5xl mx-auto">
 
         {error && (
           <Alert variant="error" className="mb-6">
@@ -130,34 +143,35 @@ const MisReservas = () => {
         )}
 
         {/* Filtros */}
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-          <div className="flex flex-wrap gap-2">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Filtrar reservas</h2>
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={() => setFiltroEstado('todas')}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
+              className={`px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${
                 filtroEstado === 'todas'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-200'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'
               }`}
             >
               Todas ({reservas.length})
             </button>
             <button
               onClick={() => setFiltroEstado('pendiente')}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
+              className={`px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${
                 filtroEstado === 'pendiente'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-200'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'
               }`}
             >
               Pendientes ({reservas.filter(r => r.estado === 'pendiente').length})
             </button>
             <button
               onClick={() => setFiltroEstado('confirmada')}
-              className={`px-4 py-2 rounded-lg font-medium transition ${
+              className={`px-5 py-2.5 rounded-xl font-medium transition-all duration-200 ${
                 filtroEstado === 'confirmada'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-200'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'
               }`}
             >
               Confirmadas ({reservas.filter(r => r.estado === 'confirmada').length})
@@ -167,70 +181,57 @@ const MisReservas = () => {
 
         {/* Lista de reservas */}
         {reservasFiltradas.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-sm p-12 text-center">
-            <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-medium text-gray-900 mb-2">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-16 text-center">
+            <div className="bg-gray-50 rounded-full p-6 w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+              <Calendar className="w-12 h-12 text-gray-400" />
+            </div>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-3">
               No tienes reservas
             </h3>
-            <p className="text-gray-600 mb-6">
-              {filtroEstado === 'todas' 
+            <p className="text-gray-600 mb-8 text-lg">
+              {filtroEstado === 'todas'
                 ? 'Aún no has creado ninguna reserva'
                 : `No tienes reservas ${filtroEstado}s`
               }
             </p>
-            <Button onClick={() => navigate('/')}>
+            <Button onClick={() => navigate('/')} size="lg">
               Buscar parqueadero
             </Button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {reservasFiltradas.map((reserva) => (
               <div
                 key={reserva.id}
-                className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition"
+                className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-lg hover:border-primary-200 transition-all duration-300"
               >
-                {/* Estado */}
-                <div className="flex items-start justify-between mb-4">
+                {/* Header con estado y número */}
+                <div className="flex items-center justify-between mb-4">
                   {getEstadoBadge(reserva.estado)}
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-gray-500 bg-gray-50 px-3 py-1 rounded-full font-medium">
                     Reserva #{reserva.id}
                   </span>
                 </div>
 
-                {/* Código de reserva */}
-                {reserva.codigo && (
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600 mb-1">Código de acceso</p>
-                        <p className="text-2xl font-bold text-blue-600 tracking-widest">
-                          {reserva.codigo}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => navigate(`/mis-reservas/${reserva.id}`)}
-                        className="p-2 hover:bg-blue-100 rounded-lg transition"
-                      >
-                        <QrCode className="w-8 h-8 text-blue-600" />
-                      </button>
+                {/* Información principal */}
+                <div className="space-y-4">
+                  {/* Código de acceso */}
+                  {reserva.codigo && (
+                    <div className="bg-primary-50 border border-primary-200 rounded-xl p-4">
+                      <p className="text-sm text-gray-600 mb-1 font-medium">Código de acceso</p>
+                      <p className="text-2xl font-bold text-primary-700 tracking-[0.2em] font-mono">
+                        {reserva.codigo}
+                      </p>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Información */}
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-gray-900">Parqueadero Centro</p>
-                      <p className="text-sm text-gray-600">Cra 14 #15-25, Armenia</p>
+                  {/* Fecha y hora */}
+                  <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                    <div className="bg-info-100 p-2 rounded-lg">
+                      <Calendar className="w-5 h-5 text-info-600" />
                     </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <Calendar className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-gray-900">
+                    <div className="flex-1">
+                      <p className="font-semibold text-gray-900 capitalize">
                         {new Date(reserva.fecha_de_reserva).toLocaleDateString('es-CO', {
                           weekday: 'long',
                           year: 'numeric',
@@ -247,59 +248,166 @@ const MisReservas = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3">
-                    <Clock className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        Duración: {reserva.duracion_estimada} minutos
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <Car className="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-gray-900">
-                        Placa: {reserva.placa_vehiculo}
-                      </p>
-                    </div>
-                  </div>
-
-                  {reserva.espacio_asignado && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                      <p className="text-sm text-gray-600">Espacio asignado</p>
-                      <p className="text-xl font-bold text-green-600">
-                        #{reserva.espacio_asignado}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Acciones */}
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => navigate(`/mis-reservas/${reserva.id}`)}
-                    variant="outline"
-                    size="sm"
-                    className="flex-1"
-                  >
-                    Ver detalles
-                    <ChevronRight className="w-4 h-4 ml-1" />
-                  </Button>
-                  
-                  {reserva.estado === 'pendiente' && (
+                  {/* Botón ver detalles */}
+                  <div className="mt-4 pt-4 border-t border-gray-100">
                     <Button
-                      onClick={() => handleCancelar(reserva.id)}
+                      onClick={() => handleVerDetalles(reserva)}
                       variant="outline"
                       size="sm"
-                      className="text-red-600 hover:bg-red-50"
+                      className="w-full hover:bg-primary-50 hover:border-primary-300 transition-all duration-200 group"
                     >
-                      Cancelar
+                      Ver detalles
+                      <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform duration-200" />
                     </Button>
-                  )}
+                  </div>
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {/* Modal de detalles */}
+        {showModal && selectedReserva && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              {/* Header del modal */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Detalles de Reserva</h2>
+                  <p className="text-sm text-gray-500">Reserva #{selectedReserva.id}</p>
+                </div>
+                <button
+                  onClick={handleCloseModal}
+                  className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  <X className="w-6 h-6 text-gray-500" />
+                </button>
+              </div>
+
+              {/* Contenido del modal */}
+              <div className="p-6 space-y-6">
+                {/* Estado */}
+                <div className="flex justify-center">
+                  {getEstadoBadge(selectedReserva.estado)}
+                </div>
+
+                {/* Código QR */}
+                {selectedReserva.codigo && (
+                  <div className="bg-primary-50 border border-primary-200 rounded-xl p-6 text-center">
+                    <div className="flex items-center justify-center gap-4 mb-4">
+                      <QrCode className="w-12 h-12 text-primary-600" />
+                      <div>
+                        <p className="text-sm text-gray-600 font-medium">Código de acceso</p>
+                        <p className="text-3xl font-bold text-primary-700 tracking-[0.3em] font-mono">
+                          {selectedReserva.codigo}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600">Presenta este código en la entrada del parqueadero</p>
+                  </div>
+                )}
+
+                {/* Información detallada */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Información de la reserva</h3>
+
+                  <div className="grid gap-4">
+                    {/* Ubicación */}
+                    <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
+                      <div className="bg-primary-100 p-2 rounded-lg">
+                        <MapPin className="w-5 h-5 text-primary-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">Parqueadero Centro</p>
+                        <p className="text-sm text-gray-600">Cra 14 #15-25, Armenia</p>
+                      </div>
+                    </div>
+
+                    {/* Fecha y hora */}
+                    <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
+                      <div className="bg-info-100 p-2 rounded-lg">
+                        <Calendar className="w-5 h-5 text-info-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900 capitalize">
+                          {new Date(selectedReserva.fecha_de_reserva).toLocaleDateString('es-CO', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {new Date(selectedReserva.fecha_de_reserva).toLocaleTimeString('es-CO', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Duración */}
+                    <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
+                      <div className="bg-warning-100 p-2 rounded-lg">
+                        <Clock className="w-5 h-5 text-warning-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">
+                          Duración: {selectedReserva.duracion_estimada} minutos
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Vehículo */}
+                    <div className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl">
+                      <div className="bg-gray-200 p-2 rounded-lg">
+                        <Car className="w-5 h-5 text-gray-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">
+                          Placa: <span className="font-mono text-lg">{selectedReserva.placa_vehiculo}</span>
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Espacio asignado */}
+                    {selectedReserva.espacio_asignado && (
+                      <div className="bg-success-50 border border-success-200 rounded-xl p-4">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-success-200 p-2 rounded-lg">
+                            <Car className="w-5 h-5 text-success-700" />
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600 font-medium">Espacio asignado</p>
+                            <p className="text-2xl font-bold text-success-700">#{selectedReserva.espacio_asignado}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Acciones del modal */}
+                <div className="flex gap-3 pt-4 border-t border-gray-200">
+                  {selectedReserva.estado === 'pendiente' && (
+                    <Button
+                      onClick={() => handleCancelar(selectedReserva.id)}
+                      variant="outline"
+                      className="text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-200"
+                    >
+                      Cancelar reserva
+                    </Button>
+                  )}
+                  <Button
+                    onClick={handleCloseModal}
+                    variant="outline"
+                    className="ml-auto"
+                  >
+                    Cerrar
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
         </div>

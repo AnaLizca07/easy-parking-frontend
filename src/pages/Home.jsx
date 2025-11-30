@@ -5,10 +5,12 @@ import MapControls from '../components/map/MapControls';
 import SearchBar from '../components/map/SearchBar';
 import FilterPanel from '../components/filters/FilterPanel';
 import GlobalNavigation from '../components/navigation/GlobalNavigation';
+import EasyParkingLogo from '../components/common/EasyParkingLogo';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { mockParqueaderosService } from '../api/mockParqueaderoService';
 import Spinner from '../components/common/Spinner';
 import Alert from '../components/common/Alert';
+
 
 const Home = () => {
   const navigate = useNavigate();
@@ -120,18 +122,28 @@ const Home = () => {
 
   return (
     <div className="h-screen w-screen flex flex-col bg-primary-white overflow-hidden">
-      {/* Header con navegación */}
-      <div className="w-full bg-text-dark px-4 py-3 flex items-center gap-2">
-        {/* Navegación global */}
-        <GlobalNavigation />
+      {/* Header con navegación - Logo más grande */}
+      <div className="w-full bg-text-dark px-4 py-3 flex items-center justify-between gap-4">
+        {/* Lado izquierdo: Navegación + Logo */}
+        <div className="flex items-center gap-4">
+          {/* Navegación global */}
+          <GlobalNavigation />
 
-        {/* Título de la página */}
-        <div className="flex-1 flex items-center justify-center">
-          <h1 className="text-primary-white font-semibold text-lg">Easy Parking</h1>
+          {/* Logo más grande y prominente */}
+          <div className="flex-shrink-0">
+            <EasyParkingLogo width={160} height={55} />
+          </div>
         </div>
 
-        {/* Espaciador */}
-        <div className="w-12"></div>
+        {/* Centro: Título */}
+        <div className="flex-shrink-0">
+          <h1 className="text-white font-bold text-xl px-6 py-2.5 rounded-lg bg-gradient-to-r from-primary-600 to-primary-500 shadow-md border border-primary-400/20">
+            Easy Parking
+          </h1>
+        </div>
+
+        {/* Lado derecho: Espacio reservado */}
+        <div className="w-[160px]"></div>
       </div>
 
       {/* Barra de búsqueda */}

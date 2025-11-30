@@ -132,7 +132,7 @@ const CrearReserva = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Spinner size="lg" />
       </div>
     );
@@ -141,54 +141,54 @@ const CrearReserva = () => {
   if (success && reservaCreada) {
     return (
       <PageLayout title="Reserva Creada" showBackButton onBackClick={() => navigate('/')}>
-        <div className="bg-gray-50 py-8 px-4 min-h-full flex items-center justify-center">
-          <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-10 h-10 text-green-600" />
+        <div className="bg-background py-8 px-4 min-h-full flex items-center justify-center">
+          <div className="max-w-md mx-auto bg-surface card-elevated p-8 text-center">
+            <div className="w-16 h-16 bg-success-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-10 h-10 text-success-600" />
             </div>
             
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="text-2xl font-bold text-text-primary mb-2">
               ¡Reserva Creada Exitosamente!
             </h2>
-            
-            <p className="text-gray-600 mb-6">
+
+            <p className="text-text-secondary mb-6">
               Tu código de reserva es:
             </p>
             
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6">
-              <p className="text-4xl font-bold text-blue-600 tracking-widest">
+            <div className="bg-primary-50 border-2 border-primary-200 rounded-lg p-6 mb-6">
+              <p className="text-4xl font-bold text-primary-700 tracking-widest">
                 {reservaCreada.codigo}
               </p>
             </div>
 
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
-              <p className="text-sm text-yellow-800">
+            <div className="alert-warning">
+              <p className="text-sm">
                 <strong>Importante:</strong> Guarda este código. Lo necesitarás para ingresar al parqueadero.
               </p>
             </div>
 
             <div className="space-y-3 text-left mb-8">
               <div className="flex justify-between">
-                <span className="text-gray-600">Parqueadero:</span>
-                <span className="font-medium">{parqueadero.nombre}</span>
+                <span className="text-text-secondary">Parqueadero:</span>
+                <span className="font-medium text-text-primary">{parqueadero.nombre}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Fecha:</span>
-                <span className="font-medium">
+                <span className="text-text-secondary">Fecha:</span>
+                <span className="font-medium text-text-primary">
                   {new Date(reservaCreada.fecha_de_reserva).toLocaleString('es-CO')}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Duración:</span>
-                <span className="font-medium">{reservaCreada.duracion_estimada} minutos</span>
+                <span className="text-text-secondary">Duración:</span>
+                <span className="font-medium text-text-primary">{reservaCreada.duracion_estimada} minutos</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Placa:</span>
-                <span className="font-medium">{reservaCreada.placa_vehiculo}</span>
+                <span className="text-text-secondary">Placa:</span>
+                <span className="font-medium text-text-primary">{reservaCreada.placa_vehiculo}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Total estimado:</span>
-                <span className="font-bold text-lg">${calcularTotal().toLocaleString()}</span>
+                <span className="text-text-secondary">Total estimado:</span>
+                <span className="font-bold text-lg text-primary-700">${calcularTotal().toLocaleString()}</span>
               </div>
             </div>
 
@@ -212,25 +212,25 @@ const CrearReserva = () => {
 
   return (
     <PageLayout title="Crear Reserva" showBackButton onBackClick={() => navigate(-1)}>
-      <div className="bg-gray-50 py-8 px-4 min-h-full">
+      <div className="bg-background py-8 px-4 min-h-full">
         <div className="max-w-2xl mx-auto">
 
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="bg-surface card-elevated overflow-hidden">
           {/* Título */}
-          <div className="bg-blue-600 text-white px-6 py-4">
+          <div className="bg-primary-600 text-white px-6 py-4">
             <h1 className="text-2xl font-bold">Crear Reserva</h1>
-            <p className="text-blue-100 mt-1">Completa los datos para tu reserva</p>
+            <p className="text-primary-100 mt-1">Completa los datos para tu reserva</p>
           </div>
 
           {/* Info del parqueadero */}
           {parqueadero && (
-            <div className="bg-gray-50 px-6 py-4 border-b">
+            <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
               <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-gray-500 mt-0.5" />
+                <MapPin className="w-5 h-5 text-text-muted mt-0.5" />
                 <div>
-                  <p className="font-medium text-gray-900">{parqueadero.nombre}</p>
-                  <p className="text-sm text-gray-600">{parqueadero.direccion}</p>
-                  <p className="text-sm text-blue-600 mt-1">
+                  <p className="font-medium text-text-primary">{parqueadero.nombre}</p>
+                  <p className="text-sm text-text-secondary">{parqueadero.direccion}</p>
+                  <p className="text-sm text-primary-600 mt-1">
                     ${parqueadero.precio_hora.toLocaleString()} / hora
                   </p>
                 </div>
@@ -249,7 +249,7 @@ const CrearReserva = () => {
 
             {/* Fecha y hora */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 <Calendar className="w-4 h-4 inline mr-1" />
                 Fecha y hora de llegada
               </label>
@@ -261,14 +261,14 @@ const CrearReserva = () => {
                 min={new Date().toISOString().slice(0, 16)}
                 required
               />
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-text-muted mt-1">
                 Selecciona cuándo planeas llegar al parqueadero
               </p>
             </div>
 
             {/* Duración */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 <Clock className="w-4 h-4 inline mr-1" />
                 Duración estimada
               </label>
@@ -276,7 +276,7 @@ const CrearReserva = () => {
                 name="duracion_estimada"
                 value={formData.duracion_estimada}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full input-field"
                 required
               >
                 <option value="30">30 minutos</option>
@@ -287,14 +287,14 @@ const CrearReserva = () => {
                 <option value="300">5 horas</option>
                 <option value="360">6 horas</option>
               </select>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-text-muted mt-1">
                 ¿Cuánto tiempo planeas quedarte?
               </p>
             </div>
 
             {/* Placa */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-text-primary mb-2">
                 <Car className="w-4 h-4 inline mr-1" />
                 Placa del vehículo
               </label>
@@ -308,7 +308,7 @@ const CrearReserva = () => {
                 required
                 className="uppercase"
               />
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-text-muted mt-1">
                 Ingresa la placa de tu vehículo (sin espacios ni guiones)
               </p>
             </div>
@@ -316,25 +316,25 @@ const CrearReserva = () => {
             {/* Resumen de pago */}
             <div className="bg-gray-50 rounded-lg p-4 space-y-2">
               <div className="flex items-center gap-2 mb-3">
-                <CreditCard className="w-5 h-5 text-gray-700" />
-                <h3 className="font-medium text-gray-900">Resumen</h3>
+                <CreditCard className="w-5 h-5 text-text-primary" />
+                <h3 className="font-medium text-text-primary">Resumen</h3>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Duración:</span>
-                <span className="font-medium">
+                <span className="text-text-secondary">Duración:</span>
+                <span className="font-medium text-text-primary">
                   {formData.duracion_estimada} minutos
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Tarifa por hora:</span>
-                <span className="font-medium">
+                <span className="text-text-secondary">Tarifa por hora:</span>
+                <span className="font-medium text-text-primary">
                   ${parqueadero?.precio_hora.toLocaleString()}
                 </span>
               </div>
               <div className="border-t border-gray-200 pt-2 mt-2">
                 <div className="flex justify-between">
-                  <span className="font-medium text-gray-900">Total estimado:</span>
-                  <span className="font-bold text-xl text-blue-600">
+                  <span className="font-medium text-text-primary">Total estimado:</span>
+                  <span className="font-bold text-xl text-primary-600">
                     ${calcularTotal().toLocaleString()}
                   </span>
                 </div>

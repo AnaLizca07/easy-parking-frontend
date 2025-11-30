@@ -41,40 +41,55 @@ const FilterPanel = ({ isOpen, onClose, onApplyFilters, initialFilters = {} }) =
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[2000] bg-text-dark bg-opacity-50">
-      <div className="absolute inset-x-0 bottom-0 bg-primary-white rounded-t-3xl max-h-[85vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[2000] bg-black bg-opacity-50 backdrop-blur-sm">
+      <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl max-h-[85vh] overflow-y-auto shadow-2xl">
         {/* Header */}
-        <div className="sticky top-0 bg-primary-white border-b border-secondary-white px-4 py-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-text-dark">Filtrar</h2>
+        <div className="sticky top-0 bg-white border-b px-6 py-5 flex items-center justify-between rounded-t-3xl z-10" style={{borderColor: 'var(--color-gray-200)'}}>
+          <h2 className="text-xl font-bold" style={{color: 'var(--color-text-primary)'}}>Filtrar</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-secondary-white rounded-full transition-colors"
+            className="p-2 rounded-full transition-colors hover:bg-gray-100"
+            style={{color: 'var(--color-text-primary)'}}
             aria-label="Cerrar filtros"
           >
-            <X className="w-5 h-5 text-text-dark" />
+            <X className="w-6 h-6" />
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-8">
           {/* Disponibilidad */}
           <div>
-            <h3 className="text-base font-medium text-text-dark mb-3">Disponibilidad</h3>
-            <div className="flex gap-4">
+            <h3 className="text-sm font-semibold mb-4" style={{color: 'var(--color-text-primary)'}}>
+              Disponibilidad
+            </h3>
+            <div className="grid grid-cols-3 gap-3">
               {[
                 { value: 'ahora', label: 'Ahora' },
                 { value: '30min', label: 'En 30 min' },
                 { value: '1hora', label: 'En 1 hora' }
               ].map((option) => (
-                <label key={option.value} className="flex items-center gap-2 cursor-pointer">
+                <label 
+                  key={option.value} 
+                  className="relative flex items-center justify-center cursor-pointer"
+                >
                   <input
                     type="radio"
                     name="disponibilidad"
                     value={option.value}
                     checked={filters.disponibilidad === option.value}
                     onChange={(e) => setFilters(prev => ({ ...prev, disponibilidad: e.target.value }))}
-                    className="w-5 h-5 text-info-blue accent-info-blue"
+                    className="sr-only peer"
                   />
-                  <span className="text-sm text-text-dark">{option.label}</span>
+                  <div 
+                    className="w-full py-3 px-4 text-center text-sm font-medium rounded-2xl border-2 transition-all"
+                    style={{
+                      borderColor: filters.disponibilidad === option.value ? 'var(--color-primary-600)' : 'var(--color-gray-300)',
+                      backgroundColor: filters.disponibilidad === option.value ? 'var(--color-primary-50)' : 'transparent',
+                      color: filters.disponibilidad === option.value ? 'var(--color-primary-700)' : 'var(--color-text-secondary)'
+                    }}
+                  >
+                    {option.label}
+                  </div>
                 </label>
               ))}
             </div>
@@ -82,21 +97,32 @@ const FilterPanel = ({ isOpen, onClose, onApplyFilters, initialFilters = {} }) =
 
           {/* Tipo de Espacio */}
           <div>
-            <h3 className="text-base font-medium text-text-dark mb-3">Tipo de Espacio</h3>
+            <h3 className="text-sm font-semibold mb-4" style={{color: 'var(--color-text-primary)'}}>
+              Tipo de Espacio
+            </h3>
             <div className="flex flex-wrap gap-3">
               {[
                 { value: 'cubierto', label: 'Cubierto' },
                 { value: 'descubierto', label: 'Descubierto' },
                 { value: 'garaje', label: 'Garaje' }
               ].map((option) => (
-                <label key={option.value} className="flex items-center gap-2 cursor-pointer">
+                <label key={option.value} className="relative cursor-pointer flex-1 min-w-[100px]">
                   <input
                     type="checkbox"
                     checked={filters.tipoEspacio.includes(option.value)}
                     onChange={() => handleTipoEspacioChange(option.value)}
-                    className="w-5 h-5 text-info-blue accent-info-blue rounded"
+                    className="sr-only peer"
                   />
-                  <span className="text-sm text-text-dark">{option.label}</span>
+                  <div 
+                    className="py-3 px-4 text-center text-sm font-medium rounded-2xl border-2 transition-all"
+                    style={{
+                      borderColor: filters.tipoEspacio.includes(option.value) ? 'var(--color-primary-600)' : 'var(--color-gray-300)',
+                      backgroundColor: filters.tipoEspacio.includes(option.value) ? 'var(--color-primary-50)' : 'transparent',
+                      color: filters.tipoEspacio.includes(option.value) ? 'var(--color-primary-700)' : 'var(--color-text-secondary)'
+                    }}
+                  >
+                    {option.label}
+                  </div>
                 </label>
               ))}
             </div>
@@ -104,45 +130,66 @@ const FilterPanel = ({ isOpen, onClose, onApplyFilters, initialFilters = {} }) =
 
           {/* Rango de Precio */}
           <div>
-            <h3 className="text-base font-medium text-text-dark mb-3">
-              Rango de Precio (Por Hora)
-            </h3>
-            <input
-              type="range"
-              min="1000"
-              max="10000"
-              step="500"
-              value={filters.precioMax}
-              onChange={(e) => setFilters(prev => ({ ...prev, precioMax: parseInt(e.target.value) }))}
-              className="w-full h-2 bg-secondary-white rounded-lg appearance-none cursor-pointer accent-info-blue"
-            />
-            <div className="flex justify-between text-xs text-text-secondary mt-2">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-semibold" style={{color: 'var(--color-text-primary)'}}>
+                Rango de Precio (Por Hora)
+              </h3>
+              <span className="text-lg font-bold" style={{color: 'var(--color-primary-600)'}}>
+                ${filters.precioMax.toLocaleString()}
+              </span>
+            </div>
+            <div className="relative">
+              <input
+                type="range"
+                min="1000"
+                max="10000"
+                step="500"
+                value={filters.precioMax}
+                onChange={(e) => setFilters(prev => ({ ...prev, precioMax: parseInt(e.target.value) }))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                style={{
+                  accentColor: 'var(--color-primary-600)',
+                  background: `linear-gradient(to right, var(--color-primary-600) 0%, var(--color-primary-600) ${((filters.precioMax - 1000) / 9000) * 100}%, var(--color-gray-200) ${((filters.precioMax - 1000) / 9000) * 100}%, var(--color-gray-200) 100%)`
+                }}
+              />
+            </div>
+            <div className="flex justify-between text-xs mt-2" style={{color: 'var(--color-text-muted)'}}>
               <span>$1.000</span>
-              <span className="font-semibold text-text-dark">${filters.precioMax.toLocaleString()}</span>
               <span>$10.000</span>
             </div>
           </div>
 
           {/* Distancia Máxima */}
           <div>
-            <h3 className="text-base font-medium text-text-dark mb-3">Distancia Máxima</h3>
-            <div className="flex gap-4">
+            <h3 className="text-sm font-semibold mb-4" style={{color: 'var(--color-text-primary)'}}>
+              Distancia Máxima
+            </h3>
+            <div className="grid grid-cols-4 gap-3">
               {[
                 { value: 500, label: '500 m' },
                 { value: 1000, label: '1 km' },
                 { value: 2000, label: '2 km' },
                 { value: 5000, label: '5 km' }
               ].map((option) => (
-                <label key={option.value} className="flex items-center gap-2 cursor-pointer">
+                <label key={option.value} className="relative cursor-pointer">
                   <input
                     type="radio"
                     name="distancia"
                     value={option.value}
                     checked={filters.distancia === option.value}
                     onChange={(e) => setFilters(prev => ({ ...prev, distancia: parseInt(e.target.value) }))}
-                    className="w-5 h-5 text-info-blue accent-info-blue"
+                    className="sr-only peer"
                   />
-                  <span className="text-sm text-text-dark">{option.label}</span>
+                  <div 
+                    className="py-3 px-2 text-center text-sm font-medium rounded-2xl border-2 transition-all"
+                    style={{
+                      borderColor: filters.distancia === option.value ? 'var(--color-primary-600)' : 'var(--color-gray-300)',
+                      backgroundColor: filters.distancia === option.value ? 'var(--color-primary-50)' : 'transparent',
+                      color: filters.distancia === option.value ? 'var(--color-primary-700)' : 'var(--color-text-secondary)'
+                    }}
+                  >
+                    {option.label}
+                  </div>
                 </label>
               ))}
             </div>
@@ -150,17 +197,23 @@ const FilterPanel = ({ isOpen, onClose, onApplyFilters, initialFilters = {} }) =
 
           {/* Características Adicionales */}
           <div>
-            <h3 className="text-base font-medium text-text-dark mb-3">
+            <h3 className="text-sm font-semibold mb-4" style={{color: 'var(--color-text-primary)'}}>
               Características Adicionales
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {[
                 { key: 'seguridad24', label: 'Seguridad 24/7' },
                 { key: 'cargaElectrica', label: 'Carga Eléctrica' },
                 { key: 'accesoDiscapacitados', label: 'Acceso para Discapacitados' }
               ].map((feature) => (
-                <label key={feature.key} className="flex items-center justify-between cursor-pointer">
-                  <span className="text-sm text-text-dark">{feature.label}</span>
+                <label 
+                  key={feature.key} 
+                  className="flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-colors hover:bg-gray-50"
+                  style={{backgroundColor: filters[feature.key] ? 'var(--color-primary-50)' : 'transparent'}}
+                >
+                  <span className="text-sm font-medium" style={{color: 'var(--color-text-primary)'}}>
+                    {feature.label}
+                  </span>
                   <div className="relative">
                     <input
                       type="checkbox"
@@ -168,8 +221,14 @@ const FilterPanel = ({ isOpen, onClose, onApplyFilters, initialFilters = {} }) =
                       onChange={(e) => setFilters(prev => ({ ...prev, [feature.key]: e.target.checked }))}
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-text-secondary rounded-full peer peer-checked:bg-info-blue transition-colors"></div>
-                    <div className="absolute left-1 top-1 w-4 h-4 bg-primary-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                    <div 
+                      className="w-12 h-6 rounded-full transition-colors"
+                      style={{backgroundColor: filters[feature.key] ? 'var(--color-primary-600)' : 'var(--color-gray-300)'}}
+                    ></div>
+                    <div 
+                      className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-transform shadow-md"
+                      style={{transform: filters[feature.key] ? 'translateX(24px)' : 'translateX(0)'}}
+                    ></div>
                   </div>
                 </label>
               ))}
@@ -177,16 +236,25 @@ const FilterPanel = ({ isOpen, onClose, onApplyFilters, initialFilters = {} }) =
           </div>
 
           {/* Botones de acción */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-4 pt-4 sticky bottom-0 bg-white pb-2">
             <button
               onClick={handleReset}
-              className="flex-1 py-3 border-2 border-text-secondary text-text-dark rounded-lg font-medium hover:bg-secondary-white transition-colors"
+              className="flex-1 py-4 rounded-2xl font-semibold transition-all hover:bg-gray-100"
+              style={{
+                border: '2px solid var(--color-primary-600)',
+                color: 'var(--color-primary-700)',
+                backgroundColor: 'transparent'
+              }}
             >
               Limpiar
             </button>
             <button
               onClick={handleApply}
-              className="flex-1 py-3 bg-info-blue text-primary-white rounded-lg font-medium hover:bg-opacity-90 transition-colors"
+              className="flex-1 py-4 rounded-2xl font-semibold transition-all shadow-lg hover:shadow-xl"
+              style={{
+                backgroundColor: 'var(--color-primary-600)',
+                color: 'var(--color-white)'
+              }}
             >
               Aplicar Filtros
             </button>
