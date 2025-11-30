@@ -1,0 +1,161 @@
+/* Estilos para el mapa de Leaflet */
+.leaflet-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+}
+
+/* Remover atribución de Leaflet en móvil */
+@media (max-width: 640px) {
+  .leaflet-control-attribution {
+    font-size: 8px;
+    opacity: 0.7;
+  }
+}
+
+/* Estilos para los popups del mapa */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.leaflet-popup-content {
+  margin: 8px 12px;
+  min-width: 200px;
+}
+
+/* Animación para el marcador de usuario */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.user-location-marker {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Estilos para input range personalizado */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #0066CC;
+  cursor: pointer;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #0066CC;
+  cursor: pointer;
+  border: 2px solid #FFFFFF;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 8px;
+  background: linear-gradient(to right, #0066CC 0%, #0066CC var(--value), #F8F9FA var(--value), #F8F9FA 100%);
+  border-radius: 4px;
+}
+
+input[type="range"]::-moz-range-track {
+  width: 100%;
+  height: 8px;
+  background: #F8F9FA;
+  border-radius: 4px;
+}
+
+input[type="range"]::-moz-range-progress {
+  background: #0066CC;
+  height: 8px;
+  border-radius: 4px;
+}
+
+/* Scroll suave para el panel de filtros */
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #6C757D #F8F9FA;
+}
+
+.overflow-y-auto::-webkit-scrollbar {
+  width: 6px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+  background: #F8F9FA;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background: #6C757D;
+  border-radius: 3px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+  background: #000000;
+}
+
+/* Animación para el panel de filtros */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Toggle switch personalizado */
+.peer:checked ~ div:first-of-type {
+  background-color: #0066CC;
+}
+
+/* Botón hamburguesa animado */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .leaflet-control-zoom {
+    display: none;
+  }
+  
+  .leaflet-touch .leaflet-bar {
+    border: none;
+  }
+}
+
+/* Asegurar que el mapa ocupe todo el espacio disponible */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+}
+
+/* Fix para iconos del mapa en producción */
+.leaflet-default-icon-path {
+  background-image: url('https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png');
+}

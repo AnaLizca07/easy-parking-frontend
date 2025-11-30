@@ -129,7 +129,10 @@ const LoginForm = ({ onSubmit, loading }) => {
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-[42px] text-text-secondary hover:text-text-dark transition-colors"
+          className="absolute right-3 top-[42px] transition-colors"
+          style={{color: 'var(--color-text-secondary)'}}
+          onMouseEnter={(e) => e.target.style.color = 'var(--color-text-primary)'}
+          onMouseLeave={(e) => e.target.style.color = 'var(--color-text-secondary)'}
         >
           {showPassword ? <EyeOffIcon /> : <EyeIcon />}
         </button>
@@ -139,14 +142,18 @@ const LoginForm = ({ onSubmit, loading }) => {
         <label className="flex items-center">
           <input
             type="checkbox"
-            className="h-4 w-4 text-success-quindio focus:ring-success-quindio border-gray-300 rounded"
+            className="h-4 w-4 border rounded"
+            style={{accentColor: 'var(--color-primary-600)', borderColor: 'var(--color-gray-300)'}}
           />
-          <span className="ml-2 text-sm text-text-dark">Recordarme</span>
+          <span className="ml-2 text-sm" style={{color: 'var(--color-text-primary)'}}>Recordarme</span>
         </label>
 
         <Link
           to="/recuperar-contrasena"
-          className="text-sm text-info-blue hover:text-blue-800 transition-colors"
+          className="text-sm transition-colors"
+          style={{color: 'var(--color-info-600)'}}
+          onMouseEnter={(e) => e.target.style.color = 'var(--color-info-700)'}
+          onMouseLeave={(e) => e.target.style.color = 'var(--color-info-600)'}
         >
           ¿Olvidaste tu contraseña?
         </Link>
@@ -163,11 +170,14 @@ const LoginForm = ({ onSubmit, loading }) => {
       </Button>
 
       <div className="text-center">
-        <span className="text-sm text-text-secondary">
+        <span className="text-sm" style={{color: 'var(--color-text-secondary)'}}>
           ¿No tienes cuenta?{' '}
           <Link
             to="/register"
-            className="text-info-blue hover:text-blue-800 font-medium transition-colors"
+            className="font-medium transition-colors"
+            style={{color: 'var(--color-info-600)'}}
+            onMouseEnter={(e) => e.target.style.color = 'var(--color-info-700)'}
+            onMouseLeave={(e) => e.target.style.color = 'var(--color-info-600)'}
           >
             Regístrate aquí
           </Link>

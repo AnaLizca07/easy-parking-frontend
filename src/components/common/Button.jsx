@@ -1,31 +1,31 @@
 // src/components/common/Button.jsx
-const Button = ({ 
-  children, 
-  variant = 'primary', 
+const Button = ({
+  children,
+  variant = 'primary',
   size = 'md',
   loading = false,
   disabled = false,
   className = '',
-  ...props 
+  ...props
 }) => {
-  const baseStyles = 'font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
-  
+  const baseStyles = 'disabled:opacity-50 disabled:cursor-not-allowed';
+
   const variants = {
-    primary: 'bg-success-quindio text-white hover:bg-green-800 focus:ring-success-quindio',
-    secondary: 'bg-warning-quindio text-text-dark hover:bg-warning-light focus:ring-warning-quindio',
-    outline: 'bg-transparent border-2 border-success-quindio text-success-quindio hover:bg-success-quindio hover:text-white focus:ring-success-quindio',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500',
+    primary: 'btn-primary',
+    secondary: 'btn-secondary',
+    outline: 'btn-outline',
+    danger: 'bg-error-600 hover:bg-error-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200',
   };
 
-  const sizes = {
-    sm: 'px-3 py-2 text-sm',
-    md: 'px-4 py-3 text-base',
-    lg: 'px-6 py-4 text-lg',
+  const sizeAdjustments = {
+    sm: size === 'sm' ? 'text-sm px-3 py-1.5' : '',
+    md: size === 'md' ? '' : '', // Tamaño por defecto de las clases btn-*
+    lg: size === 'lg' ? 'text-lg px-6 py-3' : '',
   };
 
   return (
     <button
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`${baseStyles} ${variants[variant]} ${sizeAdjustments[size]} ${className}`}
       disabled={disabled || loading}
       {...props}
     >

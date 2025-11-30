@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import LoginForm from '../components/auth/LoginForm';
+import EasyParkingLogo from '../components/common/EasyParkingLogo';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -27,37 +28,24 @@ const Login = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-secondary-white">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-success-quindio"></div>
+      <div className="min-h-screen flex items-center justify-center" style={{backgroundColor: 'var(--color-background)'}}>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{borderColor: 'var(--color-primary-600)'}}></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-success-quindio to-green-900 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8" style={{background: 'linear-gradient(135deg, var(--color-primary-600), var(--color-primary-900))'}}>
       <div className="max-w-md w-full">
-        {/* Logo y Título */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-warning-quindio rounded-full mb-4">
-            <svg className="w-8 h-8 text-text-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-            </svg>
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Easy Parking
-          </h1>
-          <p className="text-green-100">
-            Armenia, Quindío
-          </p>
-        </div>
-
         {/* Card de Login */}
         <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-text-dark text-center">
+          {/* Logo integrado */}
+          <div className="text-center">
+            <EasyParkingLogo width={350} height={200} className="mx-auto" />
+            <h2 className="text-2xl font-bold mt-1" style={{color: 'var(--color-text-primary)'}}>
               Iniciar Sesión
             </h2>
-            <p className="text-text-secondary text-center mt-2">
+            <p className="mt-2" style={{color: 'var(--color-text-secondary)'}}>
               Encuentra tu parqueadero ideal
             </p>
           </div>
@@ -67,7 +55,7 @@ const Login = () => {
 
         {/* Footer */}
         <div className="mt-6 text-center">
-          <p className="text-sm text-green-100">
+          <p className="text-sm" style={{color: 'rgba(255, 255, 255, 0.8)'}}>
             © 2025 Easy Parking. Todos los derechos reservados.
           </p>
         </div>

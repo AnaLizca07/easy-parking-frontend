@@ -20,6 +20,11 @@ const ProtectedRoute = ({ children, requiredRole = null }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
+  // Redirigir administradores al panel de control si están en la ruta raíz
+  if (user?.tipo_usuario === 'admin' && location.pathname === '/') {
+    return <Navigate to="/admin" replace />;
+  }
+
   // Verificar rol si es requerido
   if (requiredRole && user?.role !== requiredRole) {
     return (

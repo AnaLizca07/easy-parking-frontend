@@ -1,10 +1,10 @@
 // src/components/common/Alert.jsx
 const Alert = ({ type = 'info', message, onClose }) => {
   const styles = {
-    success: 'bg-green-50 border-green-500 text-green-800',
-    error: 'bg-red-50 border-red-500 text-red-800',
-    warning: 'bg-yellow-50 border-warning-quindio text-yellow-800',
-    info: 'bg-blue-50 border-info-blue text-blue-800',
+    success: 'alert-success',
+    error: 'alert-error',
+    warning: 'alert-warning',
+    info: 'alert-info',
   };
 
   const icons = {
@@ -31,7 +31,7 @@ const Alert = ({ type = 'info', message, onClose }) => {
   };
 
   return (
-    <div className={`flex items-start p-4 border-l-4 rounded ${styles[type]}`}>
+    <div className={`flex items-start ${styles[type]}`}>
       <div className="flex-shrink-0">{icons[type]}</div>
       <div className="ml-3 flex-1">
         <p className="text-sm">{message}</p>
@@ -39,7 +39,10 @@ const Alert = ({ type = 'info', message, onClose }) => {
       {onClose && (
         <button
           onClick={onClose}
-          className="ml-3 flex-shrink-0 inline-flex text-gray-400 hover:text-gray-500 focus:outline-none"
+          className="ml-3 flex-shrink-0 inline-flex focus:outline-none"
+          style={{color: 'var(--color-gray-400)'}}
+          onMouseEnter={(e) => e.target.style.color = 'var(--color-gray-500)'}
+          onMouseLeave={(e) => e.target.style.color = 'var(--color-gray-400)'}
         >
           <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />

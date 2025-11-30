@@ -16,6 +16,21 @@ export const AuthProvider = ({ children }) => {
     const storedUser = getUser();
 
     if (storedToken && storedUser) {
+      // Asegurar que el usuario tenga el campo tipo_usuario si no lo tiene
+      if (storedUser.role && !storedUser.tipo_usuario) {
+        switch (storedUser.role) {
+          case 'Administrador de Parqueadero':
+            storedUser.tipo_usuario = 'admin';
+            break;
+          case 'Usuario':
+          default:
+            storedUser.tipo_usuario = 'cliente';
+            break;
+        }
+        // Actualizar en localStorage
+        localStorage.setItem('user', JSON.stringify(storedUser));
+      }
+
       setToken(storedToken);
       setUser(storedUser);
     }
@@ -52,6 +67,25 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  const updateUser = (updatedUserData) => {
+    // Asegurar que el usuario tenga el campo tipo_usuario si no lo tiene
+    if (updatedUserData.role && !updatedUserData.tipo_usuario) {
+      switch (updatedUserData.role) {
+        case 'Administrador de Parqueadero':
+          updatedUserData.tipo_usuario = 'admin';
+          break;
+        case 'Usuario':
+        default:
+          updatedUserData.tipo_usuario = 'cliente';
+          break;
+      }
+    }
+
+    setUser(updatedUserData);
+    // También actualizar en localStorage para persistencia
+    localStorage.setItem('user', JSON.stringify(updatedUserData));
+  };
+
   const value = {
     user,
     token,
@@ -60,6 +94,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
